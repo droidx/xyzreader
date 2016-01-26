@@ -5,24 +5,34 @@ import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
+import android.view.Window;
+import android.widget.ImageView;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
+ * reference : https://codelabs.developers.google.com/codelabs/Material-Design-Style/#6
  */
 public class ArticleDetailActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -36,8 +46,11 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
-    private View mUpButtonContainer;
-    private View mUpButton;
+    // private View mUpButtonContainer;
+    // private View mUpButton;
+    private ImageView mDetailImageView;
+    private Toolbar mToolbar;
+    private CollapsingToolbarLayout mCollapsingToolbarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,26 +71,37 @@ public class ArticleDetailActivity extends AppCompatActivity
                 .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
         mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
 
-        mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-                mUpButton.animate()
-                        .alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
-                        .setDuration(300);
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
             }
 
             @Override
             public void onPageSelected(int position) {
                 if (mCursor != null) {
                     mCursor.moveToPosition(position);
+                    mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
+                    loadImage(mCursor.getString(ArticleLoader.Query.PHOTO_URL), mSelectedItemId);
                 }
-                mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
                 updateUpButtonPosition();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
 
-        mUpButtonContainer = findViewById(R.id.up_container);
+        mToolbar = (Toolbar) findViewById(R.id.detail_toolbar);
+        mCollapsingToolbarLayout = (android.support.design.widget.CollapsingToolbarLayout)
+                findViewById(R.id.detail_collapsing_toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
+        mDetailImageView = (ImageView) findViewById(R.id.detail_photo);
+
+      /*  mUpButtonContainer = findViewById(R.id.up_container);
 
         mUpButton = findViewById(R.id.action_up);
         mUpButton.setOnClickListener(new View.OnClickListener() {
@@ -98,7 +122,7 @@ public class ArticleDetailActivity extends AppCompatActivity
                     return windowInsets;
                 }
             });
-        }
+        }*/
 
         if (savedInstanceState == null) {
             if (getIntent() != null && getIntent().getData() != null) {
@@ -124,6 +148,7 @@ public class ArticleDetailActivity extends AppCompatActivity
             // TODO: optimize
             while (!mCursor.isAfterLast()) {
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
+                    loadImage(mCursor.getString(ArticleLoader.Query.PHOTO_URL), mStartId);
                     final int position = mCursor.getPosition();
                     mPager.setCurrentItem(position, false);
                     break;
@@ -135,6 +160,57 @@ public class ArticleDetailActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void loadImage(String imageUrl, final long position) {
+        ImageLoaderHelper.getInstance(this).getImageLoader().get(imageUrl, new ImageLoader.ImageListener() {
+            @Override
+            public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+                Bitmap bitmap = imageContainer.getBitmap();
+                if (bitmap != null) {
+                    Palette p = Palette.generate(bitmap, 12);
+                    int colorPrimaryDark = p.getDarkMutedColor(ContextCompat.getColor(getApplicationContext(), R.color.theme_primary_dark));
+                    int colorPrimary = p.getMutedColor(ContextCompat.getColor(getApplicationContext(), R.color.theme_primary));
+                    updateStatusBar(colorPrimaryDark, colorPrimary);
+                    if (mSelectedItemId == position) {
+                        mDetailImageView.setImageBitmap(imageContainer.getBitmap());
+                    }
+                } else {
+                    mDetailImageView.setImageResource(R.color.photo_placeholder);
+                }
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                if (mSelectedItemId == position) {
+                    mDetailImageView.setImageResource(R.color.photo_placeholder);
+                }
+            }
+        });
+    }
+
+    private void updateStatusBar(int colorPrimaryDark, int colorPrimary) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.setStatusBarColor(colorPrimaryDark);
+        }
+
+        mCollapsingToolbarLayout.setContentScrim(new ColorDrawable(colorPrimary));
+    }
+
+    @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mCursor = null;
         mPagerAdapter.notifyDataSetChanged();
@@ -142,14 +218,14 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     public void onUpButtonFloorChanged(long itemId, ArticleDetailFragment fragment) {
         if (itemId == mSelectedItemId) {
-            mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
+            // mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
             updateUpButtonPosition();
         }
     }
 
     private void updateUpButtonPosition() {
-        int upButtonNormalBottom = mTopInset + mUpButton.getHeight();
-        mUpButton.setTranslationY(Math.min(mSelectedItemUpButtonFloor - upButtonNormalBottom, 0));
+        // int upButtonNormalBottom = mTopInset + mUpButton.getHeight();
+        // mUpButton.setTranslationY(Math.min(mSelectedItemUpButtonFloor - upButtonNormalBottom, 0));
     }
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
@@ -162,7 +238,7 @@ public class ArticleDetailActivity extends AppCompatActivity
             super.setPrimaryItem(container, position, object);
             ArticleDetailFragment fragment = (ArticleDetailFragment) object;
             if (fragment != null) {
-                mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
+                // mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
                 updateUpButtonPosition();
             }
         }

@@ -10,6 +10,7 @@
 
     <dimen name="app_bar_elevation">4dp</dimen>
     <dimen name="app_bar_height">112dp</dimen>
+    <dimen name="detail_app_bar_height">256dp</dimen>
     <dimen name="list_side_padding_bottom">28dp</dimen>
 
     <dimen name="snackbar_elevation">6dp</dimen>
