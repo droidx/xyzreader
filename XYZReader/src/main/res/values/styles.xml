@@ -25,4 +25,12 @@
 
     <style name="Theme.Bacon.Detail" parent="Theme.Bacon"></style>
 
+    <style name="TextAppearance.AppCompat.Subhead.Bacon">
+        <item name="android:fontFamily">medium</item>
+    </style>
+
+    <style name="TextAppearance.AppCompat.Body1.Bacon">
+        <item name="android:fontFamily">thin</item>
+    </style>
+
 </resources>
