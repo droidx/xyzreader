@@ -14,6 +14,6 @@
     <dimen name="list_side_padding_bottom">28dp</dimen>
 
     <dimen name="snackbar_elevation">6dp</dimen>
-    <dimen name="toolbar_bottom_margin">6dp</dimen>
+    <dimen name="toolbar_margin_top">16dp</dimen>
 
 </resources>
