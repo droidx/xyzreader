@@ -33,6 +33,8 @@ import com.example.xyzreader.data.UpdaterService;
  * handset and tablet-size devices. On handsets, the activity presents a list of items, which when
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
+ *
+ * Used reference for shared transition glitches https://plus.google.com/+AlexLockwood/posts/RPtwZ5nNebb
  */
 public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
