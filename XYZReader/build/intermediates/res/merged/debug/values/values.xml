@@ -272,7 +272,7 @@
     <dimen name="detail_body_bottom_margin">88dp</dimen>
     <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/src/main/res/values/dimens.xml -->
     <eat-comment/>
-    <dimen name="detail_body_text_size">22sp</dimen>
+    <dimen name="detail_body_text_size">16sp</dimen>
     <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/src/main/res/values/macro_layout.xml -->
     <eat-comment/>
     <dimen name="detail_body_top_margin">16dp</dimen>
@@ -319,6 +319,7 @@
     <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/src/main/res/values/dimens.xml -->
     <eat-comment/>
     <dimen name="snackbar_elevation">6dp</dimen>
+    <dimen name="toolbar_bottom_margin">6dp</dimen>
     <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml -->
     <eat-comment/>
     <drawable name="notification_template_icon_bg">#3333B5E5</drawable>
@@ -331,6 +332,11 @@
     <item name="action_bar_spinner" type="id"/>
     <item name="action_menu_divider" type="id"/>
     <item name="action_menu_presenter" type="id"/>
+    <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/src/main/res/values/ids.xml -->
+    <eat-comment/>
+    <item name="adapter_position" type="id"/>
+    <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml -->
+    <eat-comment/>
     <item name="home" type="id"/>
     <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.1/res/values/values.xml -->
     <eat-comment/>
@@ -1520,6 +1526,14 @@
     <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml -->
     <eat-comment/>
     <style name="TextAppearance.AppCompat.Body2" parent="Base.TextAppearance.AppCompat.Body2"/>
+    <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/src/main/res/values/styles.xml -->
+    <eat-comment/>
+    <style name="TextAppearance.AppCompat.Body2.Bacon">
+        <item name="android:textColor">@android:color/tertiary_text_light</item>
+        <item name="android:fontFamily">light</item>
+    </style>
+    <!-- From: file:/Users/priteshsankhe/android-nanodegree/xyzreader/XYZReader/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.1/res/values/values.xml -->
+    <eat-comment/>
     <style name="TextAppearance.AppCompat.Button" parent="Base.TextAppearance.AppCompat.Button"/>
     <style name="TextAppearance.AppCompat.Caption" parent="Base.TextAppearance.AppCompat.Caption"/>
     <style name="TextAppearance.AppCompat.Display1" parent="Base.TextAppearance.AppCompat.Display1"/>

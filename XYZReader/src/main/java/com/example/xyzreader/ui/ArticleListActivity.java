@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +19,8 @@ import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
@@ -113,7 +118,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         refresh();
     }
 
-    private class Adapter extends RecyclerView.Adapter<ViewHolder> {
+    private class Adapter extends RecyclerView.Adapter<ViewHolder> implements View.OnClickListener {
         private Cursor mCursor;
 
         public Adapter(Cursor cursor) {
@@ -130,13 +135,6 @@ public class ArticleListActivity extends AppCompatActivity implements
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
             final ViewHolder vh = new ViewHolder(view);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
-                }
-            });
             return vh;
         }
 
@@ -155,24 +153,53 @@ public class ArticleListActivity extends AppCompatActivity implements
                     mCursor.getString(ArticleLoader.Query.THUMB_URL),
                     ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
             holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+            //holder.detailLayoutView.setTag();
+            holder.detailLayoutView.setOnClickListener(this);
+            holder.detailLayoutView.setTag(R.id.adapter_position, holder.getAdapterPosition());
         }
 
         @Override
         public int getItemCount() {
             return mCursor.getCount();
         }
+
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.detail_layout) {
+                int adapterPosition = (int) v.getTag(R.id.adapter_position);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    View statusBar = findViewById(android.R.id.statusBarBackground);
+                    // View navigationBar = decor.findViewById(android.R.id.navigationBarBackground);
+                    Pair[] pairs = new Pair[2];
+                    pairs[0] = new Pair<>(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME);
+                    // pairs[1] = new Pair<>(navigationBar, Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME); seems to FC!
+                    pairs[1] = new Pair<>(v.findViewById(R.id.thumbnail), "photo");
+                    ActivityOptionsCompat options =
+                            ActivityOptionsCompat.makeSceneTransitionAnimation(ArticleListActivity.this, pairs);
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            ItemsContract.Items.buildItemUri(getItemId(adapterPosition))), options.toBundle());
+                } else {
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            ItemsContract.Items.buildItemUri(getItemId(adapterPosition))));
+                }
+            }
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public DynamicHeightNetworkImageView thumbnailView;
+        public View detailLayoutView;
         public TextView titleView;
         public TextView subtitleView;
+        public ImageView detailPhotoView;
 
         public ViewHolder(View view) {
             super(view);
             thumbnailView = (DynamicHeightNetworkImageView) view.findViewById(R.id.thumbnail);
+            detailLayoutView = view.findViewById(R.id.detail_layout);
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
+            detailPhotoView = (ImageView) view.findViewById(R.id.detail_photo);
         }
     }
 }

@@ -33,4 +33,9 @@
         <item name="android:fontFamily">thin</item>
     </style>
 
+    <style name="TextAppearance.AppCompat.Body2.Bacon">
+        <item name="android:textColor">@android:color/tertiary_text_light</item>
+        <item name="android:fontFamily">light</item>
+    </style>
+
 </resources>
